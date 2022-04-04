@@ -11,18 +11,18 @@ namespace zich {
 
     Matrix::Matrix(vector<double> &matrix, int rowsNum, int colsNum) :
             _flatMatrix(matrix), _rowsNum(rowsNum), _columnsNum(colsNum) {
-        if (rowsNum < 0 || colsNum < 0) {
-            throw std::invalid_argument("bad dimensions");
-        }
+//        if (rowsNum < 0 || colsNum < 0) {
+//            throw std::invalid_argument("bad dimensions");
+//        }
     }
 
     ostream &operator<<(ostream &output, const Matrix &m) {
-        for (int curRow = 0; curRow < m._rowsNum; ++curRow) {
-            output << '[';
-            for (int j = curRow * m._rowsNum; j < m._columnsNum + curRow * m._rowsNum; ++j) {
-                if (j % m._rowsNum == 0) {
-                    output << m._flatMatrix[(unsigned int) j];
 
+        for (int i = 0; i < m._rowsNum; ++i) {
+            output << '[';
+            for (int j = i * m._columnsNum; j < (i + 1) * m._columnsNum; ++j) {
+                if (j % m._columnsNum == 0) {
+                    output << m._flatMatrix[(unsigned int) j];
                 } else {
                     output << ' ' << m._flatMatrix[(unsigned int) j];
                 }

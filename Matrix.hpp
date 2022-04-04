@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <cmath>
+
 
 #ifndef EX3_CPP_MATRIX_HPP
 #define EX3_CPP_MATRIX_HPP
@@ -39,7 +41,8 @@ namespace zich {
         Matrix operator-() const {
             vector<double> minusVect(this->_flatMatrix);
             for (size_t i = 0; i < minusVect.size(); ++i) {
-                minusVect[i] = -minusVect[i];
+
+                minusVect[i] = minusVect[i] == 0 ? 0 : -minusVect[i];
             }
             Matrix minusMat{minusVect, this->_rowsNum, this->_columnsNum};
             return minusMat;
@@ -65,7 +68,7 @@ namespace zich {
         Matrix operator-(const Matrix &other_m) const;
 
 
-        Matrix& operator*=(const double scalar);
+        Matrix &operator*=(const double scalar);
 
         friend Matrix operator*(double scalar, const Matrix &m);
 

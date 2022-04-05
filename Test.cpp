@@ -6,10 +6,10 @@
 #include "doctest.h"
 
 using namespace zich;
-
+std::vector<double> identity = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
 TEST_CASE ("Matrix construction tests") {
-    std::vector<double> identity = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+
 
             SUBCASE("Negative dimensions") {
                 CHECK_THROWS(Matrix
@@ -93,7 +93,7 @@ TEST_CASE ("comparison operators tests") {
 }
 
 TEST_CASE ("test multiplication operators") {
-    std::vector<double> identity = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+
     std::vector<double> multipliedIdentity = {3, 0, 0, 0, 3, 0, 0, 0, 3};
 
     Matrix identityMat{identity, 3, 3};
@@ -103,4 +103,10 @@ TEST_CASE ("test multiplication operators") {
             CHECK((-3 * identityMat) == (-multipliedIdentityMat));
             identityMat *=3;
             CHECK(identityMat == multipliedIdentityMat);
+}
+
+TEST_CASE("test matrix addition operators"){
+    Matrix identityMatSquare{identity, 3, 3};
+    Matrix identityMatFlat{identity, 1, 9};
+    CHECK_THROWS(identityMatSquare.operator+(identityMatFlat));
 }

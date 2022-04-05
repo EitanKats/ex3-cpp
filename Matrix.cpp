@@ -13,9 +13,28 @@ namespace zich {
 
     Matrix::Matrix(vector<double> &matrix, int rowsNum, int colsNum) :
             _flatMatrix(matrix), _rowsNum(rowsNum), _columnsNum(colsNum) {
-//        if (rowsNum < 0 || colsNum < 0) {
-//            throw std::invalid_argument("bad dimensions");`
-//        }
+        if (rowsNum < 0 || colsNum < 0) {
+            throw std::invalid_argument("bad dimensions");
+        }
+        if (rowsNum * colsNum != _flatMatrix.size()) {
+            throw std::invalid_argument("bad dimensions");
+        }
+
+    }
+
+    void Matrix::validateOperatorDimensions(const Matrix &m) const {
+        if (this->_columnsNum != m._columnsNum || this->_rowsNum != m._rowsNum) {
+            throw std::invalid_argument("cannot compare matrices with different dimensions");
+        }
+
+    }
+
+    double Matrix::calculateSum() const {
+        double sum = 0;
+        for (const double &num: this->_flatMatrix) {
+            sum += num;
+        }
+        return sum;
     }
 
     ostream &operator<<(ostream &output, const Matrix &m) {
@@ -57,8 +76,12 @@ namespace zich {
     }
 
     Matrix operator*(double scalar, const Matrix &m) {
-        std::vector<double> vect = {1, 2, 3};
-        return Matrix(vect, 1, 3);
+        std::vector<double> newMatVect(m._flatMatrix.size());
+        for (size_t i = 0; i < m._flatMatrix.size(); ++i) {
+            //todo: check minus 0 as scalar
+            newMatVect[i] = m._flatMatrix[i] == 0 ? m._flatMatrix[i] : m._flatMatrix[i] * scalar;
+        }
+        return Matrix{newMatVect, m._rowsNum, m._columnsNum};
     }
 
     Matrix Matrix::operator-() const {
@@ -70,11 +93,13 @@ namespace zich {
         return minusMat;
     }
 
-    bool Matrix::operator==(const Matrix &m) const {
+    bool Matrix::operator!=(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
+        return !this->operator==(m);
+    }
 
-        if (this->_columnsNum != m._columnsNum || this->_rowsNum != m._rowsNum) {
-//            throw std::invalid_argument("cannot compare matrices with different dimensions");
-        }
+    bool Matrix::operator==(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
         for (size_t i = 0; i < m._flatMatrix.size(); ++i) {
             double myNum = this->_flatMatrix[i];
             double otherMatNum = m._flatMatrix[i];
@@ -85,8 +110,27 @@ namespace zich {
                 return false;
             }
         }
+
         return true;
     }
 
+    bool Matrix::operator<=(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
+        return this->operator==(m) || this->operator<(m);
+    }
 
+    bool Matrix::operator>=(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
+        return this->operator==(m) || this->operator>(m);
+    }
+
+    bool Matrix::operator>(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
+        return this->calculateSum() > m.calculateSum();
+    }
+
+    bool Matrix::operator<(const Matrix &m) const {
+        this->validateOperatorDimensions(m);
+        return this->calculateSum() < m.calculateSum();
+    }
 }

@@ -19,6 +19,12 @@ namespace zich {
         int _rowsNum;
         int _columnsNum;
 
+        double calculateSum() const;
+
+        void validateOperatorDimensions(const Matrix &m) const;
+
+        vector<double> &getMultipliedMat(const Matrix &m, double scalar);
+
     public:
         Matrix(vector<double> &matrix, int rowsNum, int colsNum);
 
@@ -62,8 +68,6 @@ namespace zich {
         Matrix &operator*=(const double scalar);
 
         friend Matrix operator*(double scalar, const Matrix &m);
-
-        friend Matrix operator*(const Matrix &m, double scalar);
     };
 
 }

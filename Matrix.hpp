@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include <cmath>
 
 
 #ifndef EX3_CPP_MATRIX_HPP
@@ -38,15 +37,7 @@ namespace zich {
         bool operator!=(const Matrix &m) const;
 
 
-        Matrix operator-() const {
-            vector<double> minusVect(this->_flatMatrix);
-            for (size_t i = 0; i < minusVect.size(); ++i) {
-
-                minusVect[i] = minusVect[i] == 0 ? 0 : -minusVect[i];
-            }
-            Matrix minusMat{minusVect, this->_rowsNum, this->_columnsNum};
-            return minusMat;
-        };
+        Matrix operator-() const;
 
 
         //increments

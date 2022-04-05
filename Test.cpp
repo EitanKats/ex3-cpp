@@ -101,4 +101,6 @@ TEST_CASE ("test multiplication operators") {
 
             CHECK((3 * identityMat) == multipliedIdentityMat);
             CHECK((-3 * identityMat) == (-multipliedIdentityMat));
+            identityMat *=3;
+            CHECK(identityMat == multipliedIdentityMat);
 }

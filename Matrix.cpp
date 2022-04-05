@@ -54,8 +54,8 @@ namespace zich {
     }
 
     Matrix &Matrix::operator*=(const double scalar) {
-        for (double &i: this->_flatMatrix) {
-            i = scalar * i;
+        for (double & i : this->_flatMatrix) {
+            i = i == 0 ? i : i * scalar;
         }
         return *this;
     }
@@ -78,7 +78,6 @@ namespace zich {
     Matrix operator*(double scalar, const Matrix &m) {
         std::vector<double> newMatVect(m._flatMatrix.size());
         for (size_t i = 0; i < m._flatMatrix.size(); ++i) {
-            //todo: check minus 0 as scalar
             newMatVect[i] = m._flatMatrix[i] == 0 ? m._flatMatrix[i] : m._flatMatrix[i] * scalar;
         }
         return Matrix{newMatVect, m._rowsNum, m._columnsNum};
@@ -132,5 +131,10 @@ namespace zich {
     bool Matrix::operator<(const Matrix &m) const {
         this->validateOperatorDimensions(m);
         return this->calculateSum() < m.calculateSum();
+    }
+
+    Matrix Matrix::operator+() const {
+        std::vector<double> tst = {1, 2, 3};
+        return Matrix{tst, 0, 0};
     }
 }

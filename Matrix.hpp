@@ -12,6 +12,7 @@
 
 using std::vector;
 using std::ostream;
+using std::istream;
 namespace zich {
     class Matrix {
     private:
@@ -22,13 +23,14 @@ namespace zich {
         double calculateSum() const;
 
         void validateOperatorDimensions(const Matrix &m) const;
-
-        vector<double> &getMultipliedMat(const Matrix &m, double scalar);
+        
 
     public:
         Matrix(vector<double> &matrix, int rowsNum, int colsNum);
 
         friend ostream &operator<<(ostream &output, const Matrix &m);
+
+        friend ostream &operator>>(istream &input, const Matrix &m);
 
         bool operator<(const Matrix &m) const;
 
@@ -44,6 +46,8 @@ namespace zich {
 
 
         Matrix operator-() const;
+
+        Matrix operator+() const;
 
 
         //increments

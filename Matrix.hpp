@@ -23,7 +23,7 @@ namespace zich {
         double calculateSum() const;
 
         void validateOperatorDimensions(const Matrix &m) const;
-        
+
 
     public:
         Matrix(vector<double> &matrix, int rowsNum, int colsNum);
@@ -70,6 +70,10 @@ namespace zich {
 
 
         Matrix &operator*=(const double scalar);
+
+        Matrix &operator+=(const Matrix &other_m);
+
+        Matrix &operator-=(const Matrix &other_m);
 
         friend Matrix operator*(double scalar, const Matrix &m);
     };

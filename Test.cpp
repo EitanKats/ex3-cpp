@@ -101,12 +101,21 @@ TEST_CASE ("test multiplication operators") {
 
             CHECK((3 * identityMat) == multipliedIdentityMat);
             CHECK((-3 * identityMat) == (-multipliedIdentityMat));
-            identityMat *=3;
+    identityMat *= 3;
             CHECK(identityMat == multipliedIdentityMat);
 }
 
-TEST_CASE("test matrix addition operators"){
+TEST_CASE ("test matrix basic arithmetics operators (plus minus)") {
     Matrix identityMatSquare{identity, 3, 3};
     Matrix identityMatFlat{identity, 1, 9};
-    CHECK_THROWS(identityMatSquare.operator+(identityMatFlat));
+            SUBCASE("plus tests") {
+                CHECK_THROWS(identityMatSquare.operator+(identityMatFlat));
+                CHECK((identityMatSquare + identityMatSquare) == 2 * identityMatSquare);
+    }
+            SUBCASE("minus tests") {
+                CHECK_THROWS(identityMatSquare.operator-(identityMatFlat));
+                CHECK((2 * identityMatSquare) - identityMatSquare == identityMatSquare);
+    }
+
+
 }

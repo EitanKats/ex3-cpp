@@ -69,14 +69,18 @@ namespace zich {
         this->validateOperatorDimensions(other_m);
         std::vector<double> newVect(this->_flatMatrix);
         for (size_t i = 0; i < this->_flatMatrix.size(); ++i) {
-            newVect[i] += _flatMatrix[i];
+            newVect[i] += other_m._flatMatrix[i];
         }
         return Matrix{newVect, this->_rowsNum, this->_columnsNum};
     }
 
     Matrix Matrix::operator-(const Matrix &other_m) const {
-        std::vector<double> vect = {1, 2, 3};
-        return Matrix(vect, 1, 3);
+        this->validateOperatorDimensions(other_m);
+        std::vector<double> newVect(this->_flatMatrix);
+        for (size_t i = 0; i < this->_flatMatrix.size(); ++i) {
+            newVect[i] -= other_m._flatMatrix[i];
+        }
+        return Matrix{newVect, this->_rowsNum, this->_columnsNum};
     }
 
     Matrix operator*(double scalar, const Matrix &m) {

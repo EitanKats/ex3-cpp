@@ -68,8 +68,27 @@ namespace zich {
 
     Matrix Matrix::operator*(const Matrix &other_m) const {
         this->validateDimensionsForMultiplication(other_m);
-        std::vector<double> vect = {1, 2, 3};
-        return Matrix(vect, 1, 3);
+        unsigned int newMatSize = (unsigned int) this->_columnsNum * (unsigned int) other_m._rowsNum;
+        std::vector<double> newVect(newMatSize, 0);
+        unsigned int rowCtr = 0;
+        unsigned int currRow = 0;
+
+        for (size_t i = 0; i < newMatSize; ++i) {
+            rowCtr++;
+            if (rowCtr == this->_rowsNum) {
+                currRow += (unsigned int) this->_rowsNum - 1;
+                rowCtr = 0;
+            }
+            for (int j = 0; j < other_m._columnsNum; ++j) {
+                unsigned int nextMatIdx =
+                        ((unsigned int) j * (unsigned int) other_m._columnsNum) +
+                        (i % (unsigned int) this->_columnsNum);
+                double fromOther = other_m._flatMatrix[nextMatIdx];
+                double fromCurrent = this->_flatMatrix[currRow + (unsigned int) j];
+                newVect[i] += fromCurrent * fromOther;
+            }
+        }
+        return Matrix{newVect, this->_columnsNum, other_m._rowsNum};
     }
 
     Matrix Matrix::operator+(const Matrix &other_m) const {

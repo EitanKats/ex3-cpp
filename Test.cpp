@@ -105,7 +105,7 @@ TEST_CASE ("test multiplication operators") {
             CHECK(identityMat == multipliedIdentityMat);
 }
 
-TEST_CASE ("test matrix basic arithmetics operators (plus minus)") {
+TEST_CASE ("test matrix basic arithmetic operators (plus minus)") {
     Matrix identityMatSquare{identity, 3, 3};
     Matrix identityMatFlat{identity, 1, 9};
             SUBCASE("plus tests") {

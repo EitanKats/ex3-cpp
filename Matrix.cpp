@@ -22,11 +22,17 @@ namespace zich {
 
     }
 
-    void Matrix::validateOperatorDimensions(const Matrix &m) const {
+    void Matrix::validateDimensionsNaively(const Matrix &m) const {
         if (this->_columnsNum != m._columnsNum || this->_rowsNum != m._rowsNum) {
             throw std::invalid_argument("cannot compare matrices with different dimensions");
         }
 
+    }
+
+    void Matrix::validateDimensionsForMultiplication(const Matrix &m) const {
+        if (this->_columnsNum != m._rowsNum) {
+            throw std::invalid_argument("cannot multiply matrices with those dimensions");
+        };
     }
 
     double Matrix::calculateSum() const {
@@ -61,12 +67,13 @@ namespace zich {
     }
 
     Matrix Matrix::operator*(const Matrix &other_m) const {
+        this->validateDimensionsForMultiplication(other_m);
         std::vector<double> vect = {1, 2, 3};
         return Matrix(vect, 1, 3);
     }
 
     Matrix Matrix::operator+(const Matrix &other_m) const {
-        this->validateOperatorDimensions(other_m);
+        this->validateDimensionsNaively(other_m);
         std::vector<double> newVect(this->_flatMatrix);
         for (size_t i = 0; i < this->_flatMatrix.size(); ++i) {
             newVect[i] += other_m._flatMatrix[i];
@@ -75,7 +82,7 @@ namespace zich {
     }
 
     Matrix &Matrix::operator+=(const Matrix &other_m) {
-        this->validateOperatorDimensions(other_m);
+        this->validateDimensionsNaively(other_m);
         for (size_t i = 0; i < other_m._flatMatrix.size(); ++i) {
             this->_flatMatrix[i] = this->_flatMatrix[i] + other_m._flatMatrix[i];
         }
@@ -83,7 +90,7 @@ namespace zich {
     }
 
     Matrix &Matrix::operator-=(const Matrix &other_m) {
-        this->validateOperatorDimensions(other_m);
+        this->validateDimensionsNaively(other_m);
         for (size_t i = 0; i < other_m._flatMatrix.size(); ++i) {
             this->_flatMatrix[i] = this->_flatMatrix[i] - other_m._flatMatrix[i];
         }
@@ -91,7 +98,7 @@ namespace zich {
     }
 
     Matrix Matrix::operator-(const Matrix &other_m) const {
-        this->validateOperatorDimensions(other_m);
+        this->validateDimensionsNaively(other_m);
         std::vector<double> newVect(this->_flatMatrix);
         for (size_t i = 0; i < this->_flatMatrix.size(); ++i) {
             newVect[i] -= other_m._flatMatrix[i];
@@ -118,12 +125,12 @@ namespace zich {
 
     //region equality operators
     bool Matrix::operator!=(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         return !this->operator==(m);
     }
 
     bool Matrix::operator==(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         for (size_t i = 0; i < m._flatMatrix.size(); ++i) {
             double myNum = this->_flatMatrix[i];
             double otherMatNum = m._flatMatrix[i];
@@ -139,22 +146,22 @@ namespace zich {
     }
 
     bool Matrix::operator<=(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         return this->operator==(m) || this->operator<(m);
     }
 
     bool Matrix::operator>=(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         return this->operator==(m) || this->operator>(m);
     }
 
     bool Matrix::operator>(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         return this->calculateSum() > m.calculateSum();
     }
 
     bool Matrix::operator<(const Matrix &m) const {
-        this->validateOperatorDimensions(m);
+        this->validateDimensionsNaively(m);
         return this->calculateSum() < m.calculateSum();
     }
     //endregion

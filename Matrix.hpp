@@ -22,7 +22,9 @@ namespace zich {
 
         double calculateSum() const;
 
-        void validateOperatorDimensions(const Matrix &m) const;
+        void validateDimensionsNaively(const Matrix &m) const;
+
+        void validateDimensionsForMultiplication(const Matrix &m) const;
 
 
     public:
@@ -32,6 +34,7 @@ namespace zich {
 
         friend ostream &operator>>(istream &input, const Matrix &m);
 
+        //region equality operators
         bool operator<(const Matrix &m) const;
 
         bool operator<=(const Matrix &m) const;
@@ -43,6 +46,7 @@ namespace zich {
         bool operator==(const Matrix &m) const;
 
         bool operator!=(const Matrix &m) const;
+        //endregion
 
 
         Matrix operator-() const;
@@ -64,16 +68,17 @@ namespace zich {
         // between two matrices
         Matrix operator*(const Matrix &other_m) const;
 
+        Matrix operator*=(const Matrix &other_m) const;
+
         Matrix operator+(const Matrix &other_m) const;
 
         Matrix operator-(const Matrix &other_m) const;
 
-
-        Matrix &operator*=(const double scalar);
-
         Matrix &operator+=(const Matrix &other_m);
 
         Matrix &operator-=(const Matrix &other_m);
+
+        Matrix &operator*=(const double scalar);
 
         friend Matrix operator*(double scalar, const Matrix &m);
     };

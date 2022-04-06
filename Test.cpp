@@ -96,7 +96,7 @@ TEST_CASE ("comparison operators tests") {
 
 }
 
-TEST_CASE ("test multiplication operators") {
+TEST_CASE ("test scalar multiplication operators") {
 
 
     Matrix identityMat{identity, 3, 3};
@@ -136,3 +136,19 @@ TEST_CASE ("stream tests") {
             CHECK(buffer.str() == indentityMatString);
 }
 
+TEST_CASE ("matrix multiplication test") {
+    std::vector<double> randomVect = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    std::vector<double> randomVect2 = {1, 0, 3, -4, 0, 6, -7, 0, 9};
+    std::vector<double> result1 = {-28, 0, 42, -58, 0, 96, -88, 0, 150};
+
+
+    Matrix randomMat{randomVect, 3, 3};
+    Matrix flatMat{randomVect, 9, 1};
+    Matrix randomMat2{randomVect2, 3, 3};
+    Matrix resultMat1{randomVect2, 3, 3};
+
+            CHECK_THROWS(randomMat.operator*(flatMat));
+            CHECK_NOTHROW(randomMat.operator*(randomMat));
+//    CHECK(resultMat1 == randomMat * randomMat2);
+
+}

@@ -45,13 +45,13 @@ namespace zich {
 
     ostream &operator<<(ostream &output, const Matrix &m) {
 
-        for (int i = 0; i < m._rowsNum; ++i) {
+        for (int row = 0; row < m._rowsNum; ++row) {
             output << '[';
-            for (int j = i * m._columnsNum; j < (i + 1) * m._columnsNum; ++j) {
-                if (j % m._columnsNum == 0) {
-                    output << m._flatMatrix[(unsigned int) j];
+            for (int col = row * m._columnsNum; col < (row + 1) * m._columnsNum; ++col) {
+                if (col % m._columnsNum == 0) {
+                    output << m._flatMatrix[(unsigned int) col];
                 } else {
-                    output << ' ' << m._flatMatrix[(unsigned int) j];
+                    output << ' ' << m._flatMatrix[(unsigned int) col];
                 }
             }
             output << "]\n";

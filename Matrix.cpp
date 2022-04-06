@@ -74,6 +74,22 @@ namespace zich {
         return Matrix{newVect, this->_rowsNum, this->_columnsNum};
     }
 
+    Matrix &Matrix::operator+=(const Matrix &other_m) {
+        this->validateOperatorDimensions(other_m);
+        for (size_t i = 0; i < other_m._flatMatrix.size(); ++i) {
+            this->_flatMatrix[i] = this->_flatMatrix[i] + other_m._flatMatrix[i];
+        }
+        return *this;
+    }
+
+    Matrix &Matrix::operator-=(const Matrix &other_m) {
+        this->validateOperatorDimensions(other_m);
+        for (size_t i = 0; i < other_m._flatMatrix.size(); ++i) {
+            this->_flatMatrix[i] = this->_flatMatrix[i] - other_m._flatMatrix[i];
+        }
+        return *this;
+    }
+
     Matrix Matrix::operator-(const Matrix &other_m) const {
         this->validateOperatorDimensions(other_m);
         std::vector<double> newVect(this->_flatMatrix);
@@ -100,6 +116,7 @@ namespace zich {
         return minusMat;
     }
 
+    //region equality operators
     bool Matrix::operator!=(const Matrix &m) const {
         this->validateOperatorDimensions(m);
         return !this->operator==(m);
@@ -140,6 +157,7 @@ namespace zich {
         this->validateOperatorDimensions(m);
         return this->calculateSum() < m.calculateSum();
     }
+    //endregion
 
     Matrix Matrix::operator+() const {
         std::vector<double> tst = {1, 2, 3};

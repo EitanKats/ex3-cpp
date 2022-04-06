@@ -4,9 +4,13 @@
 #include "Matrix.hpp"
 #include "vector"
 #include "doctest.h"
+#include <sstream>
+#include "iostream"
+#include "string"
 
 using namespace zich;
 std::vector<double> identity = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+std::vector<double> multipliedIdentity = {3, 0, 0, 0, 3, 0, 0, 0, 3};
 
 TEST_CASE ("Matrix construction tests") {
 
@@ -94,7 +98,6 @@ TEST_CASE ("comparison operators tests") {
 
 TEST_CASE ("test multiplication operators") {
 
-    std::vector<double> multipliedIdentity = {3, 0, 0, 0, 3, 0, 0, 0, 3};
 
     Matrix identityMat{identity, 3, 3};
     Matrix multipliedIdentityMat{multipliedIdentity, 3, 3};
@@ -108,14 +111,28 @@ TEST_CASE ("test multiplication operators") {
 TEST_CASE ("test matrix basic arithmetic operators (plus minus)") {
     Matrix identityMatSquare{identity, 3, 3};
     Matrix identityMatFlat{identity, 1, 9};
+
             SUBCASE("plus tests") {
+        Matrix identityMatSquareChanges{identity, 3, 3};
                 CHECK_THROWS(identityMatSquare.operator+(identityMatFlat));
                 CHECK((identityMatSquare + identityMatSquare) == 2 * identityMatSquare);
+                CHECK((identityMatSquareChanges += identityMatSquare) == 2 * identityMatSquare);
+
     }
             SUBCASE("minus tests") {
+        Matrix identityMatSquareThree{multipliedIdentity, 3, 3};
+
                 CHECK_THROWS(identityMatSquare.operator-(identityMatFlat));
                 CHECK((2 * identityMatSquare) - identityMatSquare == identityMatSquare);
+                CHECK((identityMatSquareThree -= identityMatSquare) == 2 * identityMatSquare);
     }
-
-
 }
+
+TEST_CASE ("stream tests") {
+    Matrix identityMatSquare{identity, 3, 3};
+    std::string indentityMatString = "[1 0 0]\n[0 1 0]\n[0 0 1]\n";
+    std::stringstream buffer;
+    buffer << identityMatSquare;
+            CHECK(buffer.str() == indentityMatString);
+}
+

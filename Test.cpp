@@ -140,15 +140,22 @@ TEST_CASE ("matrix multiplication test") {
     std::vector<double> randomVect = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     std::vector<double> randomVect2 = {1, 0, 3, -4, 0, 6, -7, 0, 9};
     std::vector<double> result1 = {-28, 0, 42, -58, 0, 96, -88, 0, 150};
+    std::vector<double> randomVect2by3 = {1, 2, 3, 4, 5, 6};
+    std::vector<double> resultVect2by3 = {30, 36, 42, 66, 81, 96};
 
 
     Matrix randomMat{randomVect, 3, 3};
+    Matrix randomMat1{randomVect2, 3, 3};
+    Matrix resultMat1{result1, 3, 3};
     Matrix flatMat{randomVect, 9, 1};
-    Matrix randomMat2{randomVect2, 3, 3};
-    Matrix resultMat1{randomVect2, 3, 3};
+    Matrix squareIdentity{identity, 3, 3};
+    Matrix Mat2by3{randomVect2by3, 2, 3};
+    Matrix ResultMat2by3{resultVect2by3, 2, 3};
 
             CHECK_THROWS(randomMat.operator*(flatMat));
             CHECK_NOTHROW(randomMat.operator*(randomMat));
-//    CHECK(resultMat1 == randomMat * randomMat2);
+            CHECK(resultMat1 == randomMat * randomMat1);
+            CHECK(resultMat1 == resultMat1 * squareIdentity);
+            CHECK(ResultMat2by3 == Mat2by3 * randomMat);
 
 }

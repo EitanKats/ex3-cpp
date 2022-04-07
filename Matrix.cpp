@@ -75,16 +75,18 @@ namespace zich {
 
         for (size_t i = 0; i < newMatSize; ++i) {
 
+            // this is used to count which row is taken for multiplication from the left matrix
             if (rowCtr == other_m._columnsNum) {
                 currRow += (unsigned int) this->_columnsNum;
                 rowCtr = 0;
             }
+            //inner for loop is multiplying the column of the right matrix with the row on the left matrix
             for (int j = 0; j < other_m._rowsNum; ++j) {
-                unsigned int nextMatIdx =
+                unsigned int rightMatIdx =
                         ((unsigned int) j * (unsigned int) other_m._columnsNum) +
                         (i % (unsigned int) other_m._columnsNum);
                 unsigned int currMatIdx = currRow + (unsigned int) j;
-                double fromOther = other_m._flatMatrix[nextMatIdx];
+                double fromOther = other_m._flatMatrix[rightMatIdx];
                 double fromCurrent = this->_flatMatrix[currMatIdx];
                 newVect[i] += fromCurrent * fromOther;
             }

@@ -13,7 +13,7 @@ namespace zich {
 
     Matrix::Matrix(vector<double> &matrix, int rowsNum, int colsNum) :
             _flatMatrix(matrix), _rowsNum(rowsNum), _columnsNum(colsNum) {
-        if (rowsNum < 0 || colsNum < 0) {
+        if (rowsNum <= 0 || colsNum <= 0) {
             throw std::invalid_argument("bad dimensions");
         }
         if (rowsNum * colsNum != _flatMatrix.size()) {

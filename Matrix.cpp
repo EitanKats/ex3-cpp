@@ -30,7 +30,8 @@ namespace zich {
     }
 
     void Matrix::validateDimensionsForMultiplication(const Matrix &m) const {
-        if (this->_columnsNum != m._rowsNum) {
+        //the column condition is important because modulus is used in the function and it relies on division in cpp
+        if (this->_columnsNum != m._rowsNum || m._columnsNum ==0) {
             throw std::invalid_argument("cannot multiply matrices with those dimensions");
         };
     }
@@ -68,25 +69,21 @@ namespace zich {
 
     Matrix Matrix::operator*(const Matrix &other_m) const {
         this->validateDimensionsForMultiplication(other_m);
-        unsigned int newMatSize = (unsigned int) this->_rowsNum * (unsigned int) other_m._columnsNum;
-        std::vector<double> newVect(newMatSize, 0);
-        unsigned int rowCtr = 0;
-        unsigned int currRow = 0;
-
-        for (size_t i = 0; i < newMatSize; ++i) {
-
+        int newMatSize = this->_rowsNum * other_m._columnsNum;
+        std::vector<double> newVect((unsigned int)newMatSize, 0);
+        int rowCtr = 0;
+        int currRow = 0;
+        for (int i = 0; i < newMatSize; ++i) {
             if (rowCtr == other_m._columnsNum) {
-                currRow += (unsigned int) this->_columnsNum;
+                currRow += this->_columnsNum;
                 rowCtr = 0;
             }
             for (int j = 0; j < other_m._rowsNum; ++j) {
-                unsigned int nextMatIdx =
-                        ((unsigned int) j * (unsigned int) other_m._columnsNum) +
-                        (i % (unsigned int) other_m._columnsNum);
-                unsigned int currMatIdx = currRow + (unsigned int) j;
-                double fromOther = other_m._flatMatrix[nextMatIdx];
-                double fromCurrent = this->_flatMatrix[currMatIdx];
-                newVect[i] += fromCurrent * fromOther;
+                int nextMatIdx = (j * other_m._columnsNum) + (i % other_m._columnsNum);
+                int currMatIdx = currRow + j;
+                double fromOther = other_m._flatMatrix[(unsigned int) nextMatIdx];
+                double fromCurrent = this->_flatMatrix[(unsigned int) currMatIdx];
+                newVect[(unsigned int)i] += fromCurrent * fromOther;
             }
             rowCtr++;
         }

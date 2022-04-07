@@ -13,7 +13,7 @@ namespace zich {
 
     Matrix::Matrix(vector<double> &matrix, int rowsNum, int colsNum) :
             _flatMatrix(matrix), _rowsNum(rowsNum), _columnsNum(colsNum) {
-        if (rowsNum < 0 || colsNum < 0) {
+        if (rowsNum <= 0 || colsNum <= 0) {
             throw std::invalid_argument("bad dimensions");
         }
         if (rowsNum * colsNum != _flatMatrix.size()) {
@@ -30,7 +30,8 @@ namespace zich {
     }
 
     void Matrix::validateDimensionsForMultiplication(const Matrix &m) const {
-        if (this->_columnsNum != m._rowsNum) {
+        //the column condition is important because modulus is used in the function and it relies on division in cpp
+        if (this->_columnsNum != m._rowsNum || m._columnsNum ==0) {
             throw std::invalid_argument("cannot multiply matrices with those dimensions");
         };
     }
@@ -68,27 +69,21 @@ namespace zich {
 
     Matrix Matrix::operator*(const Matrix &other_m) const {
         this->validateDimensionsForMultiplication(other_m);
-        unsigned int newMatSize = (unsigned int) this->_rowsNum * (unsigned int) other_m._columnsNum;
-        std::vector<double> newVect(newMatSize, 0);
-        unsigned int rowCtr = 0;
-        unsigned int currRow = 0;
-
-        for (size_t i = 0; i < newMatSize; ++i) {
-
-            // this is used to count which row is taken for multiplication from the left matrix
+        int newMatSize = this->_rowsNum * other_m._columnsNum;
+        std::vector<double> newVect((unsigned int)newMatSize, 0);
+        int rowCtr = 0;
+        int currRow = 0;
+        for (int i = 0; i < newMatSize; ++i) {
             if (rowCtr == other_m._columnsNum) {
-                currRow += (unsigned int) this->_columnsNum;
+                currRow += this->_columnsNum;
                 rowCtr = 0;
             }
-            //inner for loop is multiplying the column of the right matrix with the row on the left matrix
             for (int j = 0; j < other_m._rowsNum; ++j) {
-                unsigned int rightMatIdx =
-                        ((unsigned int) j * (unsigned int) other_m._columnsNum) +
-                        (i % (unsigned int) other_m._columnsNum);
-                unsigned int currMatIdx = currRow + (unsigned int) j;
-                double fromOther = other_m._flatMatrix[rightMatIdx];
-                double fromCurrent = this->_flatMatrix[currMatIdx];
-                newVect[i] += fromCurrent * fromOther;
+                int nextMatIdx = (j * other_m._columnsNum) + (i % other_m._columnsNum);
+                int currMatIdx = currRow + j;
+                double fromOther = other_m._flatMatrix[(unsigned int) nextMatIdx];
+                double fromCurrent = this->_flatMatrix[(unsigned int) currMatIdx];
+                newVect[(unsigned int)i] += fromCurrent * fromOther;
             }
             rowCtr++;
         }

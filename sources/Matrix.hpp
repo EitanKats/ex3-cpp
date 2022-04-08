@@ -30,6 +30,8 @@ namespace zich {
     public:
         Matrix(vector<double> &matrix, int rowsNum, int colsNum);
 
+        Matrix(const vector<double> &matrix, int rowsNum, int colsNum);
+
         friend ostream &operator<<(ostream &output, const Matrix &m);
 
         friend istream &operator>>(istream &input, Matrix &m);

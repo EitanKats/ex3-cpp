@@ -1,7 +1,7 @@
 //
 // Created by Eitan Kats on 04/04/2022.
 //
-#include "Matrix.hpp"
+#include "sources/Matrix.hpp"
 #include "vector"
 #include "doctest.h"
 #include <sstream>

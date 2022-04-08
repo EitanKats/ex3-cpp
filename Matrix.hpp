@@ -32,7 +32,7 @@ namespace zich {
 
         friend ostream &operator<<(ostream &output, const Matrix &m);
 
-        friend ostream &operator>>(istream &input, const Matrix &m);
+        friend istream &operator>>(istream &input, Matrix &m);
 
         //region equality operators
         bool operator<(const Matrix &m) const;

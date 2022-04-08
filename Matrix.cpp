@@ -7,6 +7,8 @@
 #include <utility>
 #include "vector"
 #include <cmath>
+#include <ctype.h>
+#include "string"
 
 using std::signbit;
 namespace zich {
@@ -31,7 +33,7 @@ namespace zich {
 
     void Matrix::validateDimensionsForMultiplication(const Matrix &m) const {
         //the column condition is important because modulus is used in the function and it relies on division in cpp
-        if (this->_columnsNum != m._rowsNum || m._columnsNum ==0) {
+        if (this->_columnsNum != m._rowsNum || m._columnsNum == 0) {
             throw std::invalid_argument("cannot multiply matrices with those dimensions");
         };
     }
@@ -43,6 +45,39 @@ namespace zich {
         }
         return sum;
     }
+
+    istream &operator>>(istream &input, Matrix &m) {
+        std::string line;
+        bool isRowOpen = false;
+        int numCtr = 0;
+        int rowCtr = 0;
+        unsigned int currNumber = 0;
+        getline(input, line);
+        for (char &currChar: line) {
+            if (currChar == '[' && rowCtr == m._columnsNum) throw std::runtime_error("Bad Matrix");
+            if (currChar == '[' && isRowOpen) throw std::runtime_error("Bad Matrix");
+            if (currChar == '[') isRowOpen = true;
+            if (currChar == ']') {
+                if (numCtr < m._columnsNum) {
+                    throw std::runtime_error("bad matrix as input");
+                }
+                isRowOpen = false;
+                rowCtr++;
+                numCtr = 0;
+            }
+            if (isdigit(currChar) && (numCtr >= m._columnsNum || !isRowOpen)) {
+                throw std::runtime_error("bad matrix as input");
+            } else if (isdigit(currChar)) {
+                m._flatMatrix[currNumber] = (double) currChar;
+                numCtr++;
+            }
+        }
+        if (rowCtr != m._rowsNum) {
+            throw std::runtime_error("bad matrix as input");
+        }
+
+        return input;
+    };
 
     ostream &operator<<(ostream &output, const Matrix &m) {
 
@@ -70,7 +105,7 @@ namespace zich {
     Matrix Matrix::operator*(const Matrix &other_m) const {
         this->validateDimensionsForMultiplication(other_m);
         int newMatSize = this->_rowsNum * other_m._columnsNum;
-        std::vector<double> newVect((unsigned int)newMatSize, 0);
+        std::vector<double> newVect((unsigned int) newMatSize, 0);
         int rowCtr = 0;
         int currRow = 0;
         for (int i = 0; i < newMatSize; ++i) {
@@ -83,7 +118,7 @@ namespace zich {
                 int currMatIdx = currRow + j;
                 double fromOther = other_m._flatMatrix[(unsigned int) nextMatIdx];
                 double fromCurrent = this->_flatMatrix[(unsigned int) currMatIdx];
-                newVect[(unsigned int)i] += fromCurrent * fromOther;
+                newVect[(unsigned int) i] += fromCurrent * fromOther;
             }
             rowCtr++;
         }

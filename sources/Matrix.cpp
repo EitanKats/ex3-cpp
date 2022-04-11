@@ -9,6 +9,8 @@
 #include <cmath>
 #include <ctype.h>
 #include "string"
+#include <regex>
+
 
 using std::signbit;
 namespace zich {
@@ -78,6 +80,64 @@ namespace zich {
         }
     }
 
+    void validateRowFromInput(std::string &row) {
+        if (row.at(0) != '[' || row.at(row.size() - 1) != ']') throw std::runtime_error("bad matrix as input");
+        bool isRowOpen = false;
+        bool isNumberParsing = false;
+        int openBracketCtr = 0;
+        int closingBracketCtr = 0;
+        int bracketAmountLimit = 1;
+        int dotsInNumLimit = 1;
+        int numberOfDotsInNum = 0;
+        std::string currNum;
+        for (size_t i = 0; i < row.length(); ++i) {
+            bool is_valid_char = isdigit(row[i]) || row[i] == '.' || row[i] == ' ' || row[i] == '[' || row[i] == ']' ||
+                                 row[i] == '-';
+
+            if (row[i] == '[' and isRowOpen) throw std::runtime_error("bad matrix as input");
+            if (row[i] == ']' and !isRowOpen) throw std::runtime_error("bad matrix as input");
+            if (row[i] == ']' and isRowOpen) closingBracketCtr++;
+            if (isNumberParsing and row[i] == ' ') {
+                isNumberParsing = false;
+                numberOfDotsInNum = 0;
+            }
+
+            if (row[i] == '[') {
+                isRowOpen = true;
+                ++openBracketCtr;
+            }
+
+            if (!is_valid_char) throw std::runtime_error("bad matrix as input");
+            if (closingBracketCtr > bracketAmountLimit || openBracketCtr > bracketAmountLimit)
+                throw std::runtime_error("bad matrix as input");
+            if ((row[i] == '.' || row[i] == '-') && !isNumberParsing) throw std::runtime_error("bad matrix as input");
+            if ((isdigit(row[i]) || row[i] == '.') && isNumberParsing) {
+                if (row[i] == '.' && numberOfDotsInNum == dotsInNumLimit) {
+                    throw std::runtime_error("bad matrix as input");
+                }
+                if (row[i] == '.' and numberOfDotsInNum < dotsInNumLimit) {
+                    numberOfDotsInNum++;
+                }
+            }
+            currNum.append(1, row[i]);
+            if ((isdigit(row[i]) || row[i] == '-' && isdigit(row[i + 1]) && !isNumberParsing)) {
+                //starts new number
+                currNum = row[i];
+                isNumberParsing = true;
+            }
+
+        }
+    }
+
+    std::vector<std::string> splitText(const std::string &input, const std::string &regex) {
+        // passing -1 as the submatch index parameter performs splitting
+        std::regex re(regex);
+        std::sregex_token_iterator
+                first{input.begin(), input.end(), re, -1},
+                last;
+        return {first, last};
+    }
+
     istream &operator>>(istream &input, Matrix &m) {
         std::string line;
         bool isRowOpen = false;
@@ -85,27 +145,21 @@ namespace zich {
         int rowCtr = 0;
         unsigned int currNumber = 0;
         getline(input, line);
-        for (char &currChar: line) {
-            if (currChar == '[' && rowCtr == m._columnsNum) throw std::runtime_error("Bad Matrix");
-            if (currChar == '[' && isRowOpen) throw std::runtime_error("Bad Matrix");
-            if (currChar == '[') isRowOpen = true;
-            if (currChar == ']') {
-                if (numCtr < m._columnsNum) {
-                    throw std::runtime_error("bad matrix as input");
-                }
-                isRowOpen = false;
-                rowCtr++;
-                numCtr = 0;
-            }
-            if (isdigit(currChar) && (numCtr >= m._columnsNum || !isRowOpen)) {
-                throw std::runtime_error("bad matrix as input");
-            } else if (isdigit(currChar)) {
-                m._flatMatrix[currNumber] = (double) currChar;
-                numCtr++;
-            }
-        }
-        if (rowCtr != m._rowsNum) {
-            throw std::runtime_error("bad matrix as input");
+        //the next 3 lines are used to split the lines by ", " https://stackoverflow.com/a/9437426/6569084
+        // passing -1 as the submatch index parameter performs splitting
+        std::string rowRegex = ", ";
+        std::string numberSplitRegex = " ";
+        std::string extractNumbersRegex = "\\[([^\\][]*)]";
+        std::vector<std::string> columnsSplit = splitText(line, ", ");
+        if (columnsSplit.empty()) throw std::runtime_error("bad matrix as input");
+
+        unsigned int numsPerRow = 0;
+        for (int i = 0; i < columnsSplit.size(); ++i) {
+            std::string &currRow = columnsSplit.at((unsigned int) i);
+            validateRowFromInput(currRow);
+            std::vector<std::string> numbersSplit = splitText(currRow, extractNumbersRegex);
+            if (i > 1 && numbersSplit.size() != numsPerRow) throw std::runtime_error("bad matrix as input");
+            numsPerRow = numbersSplit.size();
         }
 
         return input;
@@ -122,7 +176,11 @@ namespace zich {
                     output << ' ' << m._flatMatrix[(unsigned int) col];
                 }
             }
-            output << "]\n";
+            if (row < m._rowsNum - 1) {
+                output << "]\n";
+            } else {
+                output << "]";
+            }
         }
         return output;
     }
@@ -197,7 +255,7 @@ namespace zich {
 
     Matrix Matrix::operator-() const {
         vector<double> minusVect(this->_flatMatrix);
-        for (double & i : minusVect) {
+        for (double &i: minusVect) {
             i = i == 0 ? 0 : -i;
         }
         Matrix minusMat{minusVect, this->_rowsNum, this->_columnsNum};
@@ -252,4 +310,44 @@ namespace zich {
         Matrix matCpy{cpyVect, this->_rowsNum, this->_columnsNum};
         return matCpy;
     }
+
+    Matrix Matrix::operator*(double scalar) {
+        std::vector<double> cpyVect(this->_flatMatrix);
+        for (double &i: cpyVect) {
+            i = i == 0 ? i : i * scalar;
+        }
+
+        return Matrix{cpyVect, this->_rowsNum, this->_columnsNum};
+    }
+
+
+    //region postfix and prefix operators
+    Matrix &Matrix::operator++() {
+        for (double &i: this->_flatMatrix) {
+            ++i;
+        }
+        return *this;
+    }
+
+    Matrix Matrix::operator++(int postfix) {
+        std::vector<double> cpyVect(this->_flatMatrix);
+        Matrix matCpy{cpyVect, this->_rowsNum, this->_columnsNum};
+        ++(*this);
+        return matCpy;
+    }
+
+    Matrix &Matrix::operator--() {
+        for (double &i: this->_flatMatrix) {
+            --i;
+        }
+        return *this;
+    }
+
+    Matrix Matrix::operator--(int postfix) {
+        std::vector<double> cpyVect(this->_flatMatrix);
+        Matrix matCpy{cpyVect, this->_rowsNum, this->_columnsNum};
+        --(*this);
+        return matCpy;
+    }
+    //endregion
 }

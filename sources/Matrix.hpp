@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include "string"
 
 
 #ifndef EX3_CPP_MATRIX_HPP
@@ -29,7 +30,7 @@ namespace zich {
         void multiplyMats(const Matrix &other_m, std::vector<double> &multipliedMatVect) const;
 
     public:
-        Matrix(vector<double> &matrix, int rowsNum, int colsNum);
+        Matrix(vector<double> &matrix, int rowsNum = 1, int colsNum = 1);
 
         Matrix(const vector<double> &matrix, int rowsNum, int colsNum);
 

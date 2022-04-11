@@ -22,7 +22,8 @@ namespace zich {
             throw std::invalid_argument("bad dimensions");
         }
     }
-    Matrix::Matrix( const vector<double> &matrix, int rowsNum, int colsNum) :
+
+    Matrix::Matrix(const vector<double> &matrix, int rowsNum, int colsNum) :
             _flatMatrix(matrix), _rowsNum(rowsNum), _columnsNum(colsNum) {
         if (rowsNum <= 0 || colsNum <= 0) {
             throw std::invalid_argument("bad dimensions");
@@ -52,6 +53,29 @@ namespace zich {
             sum += num;
         }
         return sum;
+    }
+
+    void Matrix::multiplyMats(const Matrix &other_m, std::vector<double> &multipliedMatVect) const {
+
+        vector<double> &newVect = multipliedMatVect;
+        int rowCtr = 0;
+        int currRow = 0;
+        for (int i = 0; i < multipliedMatVect.size(); ++i) {
+            if (rowCtr == other_m._columnsNum) {
+                currRow += _columnsNum;
+                rowCtr = 0;
+            }
+            for (int j = 0; j < other_m._rowsNum; ++j) {
+                // j* other_m._columnsNum loops over the first column indexes
+                //the modulus is used to add an offset so that it lands of the column
+                int nextMatIdx = (j * other_m._columnsNum) + (i % other_m._columnsNum);
+                int currMatIdx = currRow + j;
+                double fromOther = other_m._flatMatrix[(unsigned int) nextMatIdx];
+                double fromCurrent = _flatMatrix[(unsigned int) currMatIdx];
+                newVect[(unsigned int) i] += fromCurrent * fromOther;
+            }
+            rowCtr++;
+        }
     }
 
     istream &operator>>(istream &input, Matrix &m) {
@@ -112,25 +136,21 @@ namespace zich {
 
     Matrix Matrix::operator*(const Matrix &other_m) const {
         this->validateDimensionsForMultiplication(other_m);
-        int newMatSize = this->_rowsNum * other_m._columnsNum;
+        int newMatSize = _rowsNum * other_m._columnsNum;
         std::vector<double> newVect((unsigned int) newMatSize, 0);
-        int rowCtr = 0;
-        int currRow = 0;
-        for (int i = 0; i < newMatSize; ++i) {
-            if (rowCtr == other_m._columnsNum) {
-                currRow += this->_columnsNum;
-                rowCtr = 0;
-            }
-            for (int j = 0; j < other_m._rowsNum; ++j) {
-                int nextMatIdx = (j * other_m._columnsNum) + (i % other_m._columnsNum);
-                int currMatIdx = currRow + j;
-                double fromOther = other_m._flatMatrix[(unsigned int) nextMatIdx];
-                double fromCurrent = this->_flatMatrix[(unsigned int) currMatIdx];
-                newVect[(unsigned int) i] += fromCurrent * fromOther;
-            }
-            rowCtr++;
-        }
+        multiplyMats(other_m, newVect);
         return Matrix{newVect, this->_rowsNum, other_m._columnsNum};
+    }
+
+    Matrix Matrix::operator*=(const Matrix &other_m) {
+        this->validateDimensionsForMultiplication(other_m);
+        int newMatSize = _rowsNum * other_m._columnsNum;
+        std::vector<double> newVect((unsigned int) newMatSize, 0);
+        multiplyMats(other_m, newVect);
+        this->_columnsNum = other_m._columnsNum;
+        this->_flatMatrix.swap(newVect);
+        return *this;
+
     }
 
     Matrix Matrix::operator+(const Matrix &other_m) const {
@@ -177,8 +197,8 @@ namespace zich {
 
     Matrix Matrix::operator-() const {
         vector<double> minusVect(this->_flatMatrix);
-        for (size_t i = 0; i < minusVect.size(); ++i) {
-            minusVect[i] = minusVect[i] == 0 ? 0 : -minusVect[i];
+        for (double & i : minusVect) {
+            i = i == 0 ? 0 : -i;
         }
         Matrix minusMat{minusVect, this->_rowsNum, this->_columnsNum};
         return minusMat;
@@ -228,7 +248,8 @@ namespace zich {
     //endregion
 
     Matrix Matrix::operator+() const {
-        std::vector<double> tst = {1, 2, 3};
-        return Matrix{tst, 0, 0};
+        std::vector<double> cpyVect(this->_flatMatrix);
+        Matrix matCpy{cpyVect, this->_rowsNum, this->_columnsNum};
+        return matCpy;
     }
 }

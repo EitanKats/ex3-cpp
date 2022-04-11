@@ -26,6 +26,7 @@ namespace zich {
 
         void validateDimensionsForMultiplication(const Matrix &m) const;
 
+        void multiplyMats(const Matrix &other_m, std::vector<double> &multipliedMatVect) const;
 
     public:
         Matrix(vector<double> &matrix, int rowsNum, int colsNum);
@@ -70,7 +71,7 @@ namespace zich {
         // between two matrices
         Matrix operator*(const Matrix &other_m) const;
 
-        Matrix operator*=(const Matrix &other_m) const;
+        Matrix operator*=(const Matrix &other_m);
 
         Matrix operator+(const Matrix &other_m) const;
 
@@ -81,6 +82,8 @@ namespace zich {
         Matrix &operator-=(const Matrix &other_m);
 
         Matrix &operator*=(const double scalar);
+
+        Matrix operator*(double scalar);
 
         friend Matrix operator*(double scalar, const Matrix &m);
     };

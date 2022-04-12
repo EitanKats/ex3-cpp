@@ -80,33 +80,41 @@ namespace zich {
     }
 
     void validateRowFromInput(std::string &row) {
-        if (row.at(0) != '[' || row.at(row.size() - 1) != ']') throw std::runtime_error("bad matrix as input");
+        if (row.at(0) != '[' || row.at(row.size() - 1) != ']') {
+            throw std::runtime_error("bad matrix as input");
+        }
         bool isRowOpen = false;
         int openBracketCtr = 0;
         int closingBracketCtr = 0;
         int bracketAmountLimit = 1;
         std::string currNum;
         for (char i: row) {
-            bool is_valid_char = isdigit(i) || i == '.' || i == ' ' || i == '[' || i == ']' ||
+            bool is_valid_char = (bool) isdigit(i) || i == '.' || i == ' ' || i == '[' || i == ']' ||
                                  i == '-';
-            if (!is_valid_char) throw std::runtime_error("bad matrix as input");
+            if (!is_valid_char) {
+                throw std::runtime_error("bad matrix as input");
+            }
 
             if (i == '[') {
-                if (isRowOpen) throw std::runtime_error("bad matrix as input");
+                if (isRowOpen) {
+                    throw std::runtime_error("bad matrix as input");
+                }
                 isRowOpen = true;
                 ++openBracketCtr;
             }
 
             if (i == ']') {
-                if (!isRowOpen) throw std::runtime_error("bad matrix as input");
+                if (!isRowOpen) {
+                    throw std::runtime_error("bad matrix as input");
+                }
                 closingBracketCtr++;
                 isRowOpen = false;
             }
 
 
-            if (closingBracketCtr > bracketAmountLimit || openBracketCtr > bracketAmountLimit)
+            if (closingBracketCtr > bracketAmountLimit || openBracketCtr > bracketAmountLimit) {
                 throw std::runtime_error("bad matrix as input");
-
+            }
         }
     }
 
@@ -114,7 +122,8 @@ namespace zich {
     std::vector<std::string> splitText(const std::string &input, const std::string &regex) {
         // passing -1 as the submatch index parameter performs splitting
         std::regex re(regex);
-        std::sregex_token_iterator first{input.begin(), input.end(), re, -1}, last;
+        std::sregex_token_iterator first{input.begin(), input.end(), re, -1};
+        std::sregex_token_iterator last;
         return {first, last};
     }
 
@@ -126,7 +135,9 @@ namespace zich {
 
         unsigned int rowCtr = 0;
         std::vector<std::string> rowsSplit = splitText(line, ", ");
-        if (rowsSplit.empty()) throw std::runtime_error("bad matrix as input");
+        if (rowsSplit.empty()) {
+            throw std::runtime_error("bad matrix as input");
+        }
         //taking the 1st one since the matrix should have the same number or elements
         unsigned int numbersPerRow = splitText(rowsSplit[0], numberSplitRegex).size();
         std::vector<double> matVect(rowsSplit.size() * numbersPerRow);
@@ -135,7 +146,9 @@ namespace zich {
             validateRowFromInput(currRow);
             std::string bracketlessRow = currRow.substr(1, currRow.size() - 2);
             std::vector<std::string> rowNumsAsStr = splitText(bracketlessRow, numberSplitRegex);
-            if (rowNumsAsStr.size() != numbersPerRow) throw std::runtime_error("bad matrix as input");
+            if (rowNumsAsStr.size() != numbersPerRow) {
+                throw std::runtime_error("bad matrix as input");
+            }
             for (size_t j = 0; j < rowNumsAsStr.size(); ++j) {
                 matVect[j + (rowCtr * numbersPerRow)] = std::stod(rowNumsAsStr[j]);
             }

@@ -130,7 +130,7 @@ TEST_CASE ("test matrix basic arithmetic operators (plus minus)") {
 
 TEST_CASE ("stream tests") {
     Matrix identityMatSquare{identity, 3, 3};
-    std::string indentityMatString = "[1 0 0]\n[0 1 0]\n[0 0 1]\n";
+    std::string indentityMatString = "[1 0 0]\n[0 1 0]\n[0 0 1]";
     std::stringstream buffer;
     buffer << identityMatSquare;
             CHECK(buffer.str() == indentityMatString);

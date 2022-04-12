@@ -7,7 +7,6 @@
 #include <utility>
 #include "vector"
 #include <cmath>
-#include <ctype.h>
 #include "string"
 #include <regex>
 
@@ -83,85 +82,69 @@ namespace zich {
     void validateRowFromInput(std::string &row) {
         if (row.at(0) != '[' || row.at(row.size() - 1) != ']') throw std::runtime_error("bad matrix as input");
         bool isRowOpen = false;
-        bool isNumberParsing = false;
         int openBracketCtr = 0;
         int closingBracketCtr = 0;
         int bracketAmountLimit = 1;
-        int dotsInNumLimit = 1;
-        int numberOfDotsInNum = 0;
         std::string currNum;
-        for (size_t i = 0; i < row.length(); ++i) {
-            bool is_valid_char = isdigit(row[i]) || row[i] == '.' || row[i] == ' ' || row[i] == '[' || row[i] == ']' ||
-                                 row[i] == '-';
+        for (char i: row) {
+            bool is_valid_char = isdigit(i) || i == '.' || i == ' ' || i == '[' || i == ']' ||
+                                 i == '-';
+            if (!is_valid_char) throw std::runtime_error("bad matrix as input");
 
-            if (row[i] == '[' and isRowOpen) throw std::runtime_error("bad matrix as input");
-            if (row[i] == ']' and !isRowOpen) throw std::runtime_error("bad matrix as input");
-            if (row[i] == ']' and isRowOpen) closingBracketCtr++;
-            if (isNumberParsing and row[i] == ' ') {
-                isNumberParsing = false;
-                numberOfDotsInNum = 0;
-            }
-
-            if (row[i] == '[') {
+            if (i == '[') {
+                if (isRowOpen) throw std::runtime_error("bad matrix as input");
                 isRowOpen = true;
                 ++openBracketCtr;
             }
 
-            if (!is_valid_char) throw std::runtime_error("bad matrix as input");
+            if (i == ']') {
+                if (!isRowOpen) throw std::runtime_error("bad matrix as input");
+                closingBracketCtr++;
+                isRowOpen = false;
+            }
+
+
             if (closingBracketCtr > bracketAmountLimit || openBracketCtr > bracketAmountLimit)
                 throw std::runtime_error("bad matrix as input");
-            if ((row[i] == '.' || row[i] == '-') && !isNumberParsing) throw std::runtime_error("bad matrix as input");
-            if ((isdigit(row[i]) || row[i] == '.') && isNumberParsing) {
-                if (row[i] == '.' && numberOfDotsInNum == dotsInNumLimit) {
-                    throw std::runtime_error("bad matrix as input");
-                }
-                if (row[i] == '.' and numberOfDotsInNum < dotsInNumLimit) {
-                    numberOfDotsInNum++;
-                }
-            }
-            currNum.append(1, row[i]);
-            if ((isdigit(row[i]) || row[i] == '-' && isdigit(row[i + 1]) && !isNumberParsing)) {
-                //starts new number
-                currNum = row[i];
-                isNumberParsing = true;
-            }
 
         }
     }
 
+    //the next 3 lines are used to split the lines by ", " https://stackoverflow.com/a/9437426/6569084
     std::vector<std::string> splitText(const std::string &input, const std::string &regex) {
         // passing -1 as the submatch index parameter performs splitting
         std::regex re(regex);
-        std::sregex_token_iterator
-                first{input.begin(), input.end(), re, -1},
-                last;
+        std::sregex_token_iterator first{input.begin(), input.end(), re, -1}, last;
         return {first, last};
     }
 
     istream &operator>>(istream &input, Matrix &m) {
-        std::string line;
-        bool isRowOpen = false;
-        int numCtr = 0;
-        int rowCtr = 0;
-        unsigned int currNumber = 0;
-        getline(input, line);
-        //the next 3 lines are used to split the lines by ", " https://stackoverflow.com/a/9437426/6569084
-        // passing -1 as the submatch index parameter performs splitting
         std::string rowRegex = ", ";
         std::string numberSplitRegex = " ";
-        std::string extractNumbersRegex = "\\[([^\\][]*)]";
-        std::vector<std::string> columnsSplit = splitText(line, ", ");
-        if (columnsSplit.empty()) throw std::runtime_error("bad matrix as input");
+        std::string line;
+        getline(input, line);
 
-        unsigned int numsPerRow = 0;
-        for (int i = 0; i < columnsSplit.size(); ++i) {
-            std::string &currRow = columnsSplit.at((unsigned int) i);
+        unsigned int rowCtr = 0;
+        std::vector<std::string> rowsSplit = splitText(line, ", ");
+        if (rowsSplit.empty()) throw std::runtime_error("bad matrix as input");
+        //taking the 1st one since the matrix should have the same number or elements
+        unsigned int numbersPerRow = splitText(rowsSplit[0], numberSplitRegex).size();
+        std::vector<double> matVect(rowsSplit.size() * numbersPerRow);
+        for (int i = 0; i < rowsSplit.size(); ++i) {
+            std::string &currRow = rowsSplit.at((unsigned int) i);
             validateRowFromInput(currRow);
-            std::vector<std::string> numbersSplit = splitText(currRow, extractNumbersRegex);
-            if (i > 1 && numbersSplit.size() != numsPerRow) throw std::runtime_error("bad matrix as input");
-            numsPerRow = numbersSplit.size();
+            std::string bracketlessRow = currRow.substr(1, currRow.size() - 2);
+            std::vector<std::string> rowNumsAsStr = splitText(bracketlessRow, numberSplitRegex);
+            if (rowNumsAsStr.size() != numbersPerRow) throw std::runtime_error("bad matrix as input");
+            for (size_t j = 0; j < rowNumsAsStr.size(); ++j) {
+                matVect[j + (rowCtr * numbersPerRow)] = std::stod(rowNumsAsStr[j]);
+            }
+            rowCtr++;
         }
-
+        //swapping the vect with the new vect
+        m._flatMatrix.swap(matVect);
+        m._columnsNum = (int) numbersPerRow;
+        m._rowsNum = (int) rowCtr;
         return input;
     };
 

@@ -77,13 +77,12 @@ void startDemoLoop() {
 }
 
 int main() {
-    startDemoLoop();
-//    try {
-//        startDemoLoop();
-//    } catch (std::exception &ex) {
-//        std::cout << "ERROR :" << ex.what() << std::endl;
-//        return 1;
-//    }
+    try {
+        startDemoLoop();
+    } catch (std::exception &ex) {
+        std::cout << "ERROR :" << ex.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }

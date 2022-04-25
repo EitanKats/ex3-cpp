@@ -26,8 +26,7 @@ const int scalarMul = 3;
 void handleMatInput(Matrix &demoMat) {
     std::cout << "input a matrix" << std::endl;
     //cleaning the buffer because I need to get a matrix as input
-    std::cin.clear();
-    fflush(stdin);
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cin >> demoMat;
 }
 
